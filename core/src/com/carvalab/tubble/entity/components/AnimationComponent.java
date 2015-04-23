@@ -12,6 +12,7 @@ public class AnimationComponent extends Component {
 	private float		animationStateTime;
 	private float		width;
 	private float		height;
+	private float		angle	= 0f;
 	public float		scale	= 1.0f;
 
 	public AnimationComponent(String animAsset, Color tint, float FrameDuration) {
@@ -79,5 +80,13 @@ public class AnimationComponent extends Component {
 
 	public float getScale() {
 		return scale;
+	}
+
+	public float getAngle() {
+		return angle;
+	}
+
+	public void setAngle(float angle) {
+		this.angle = angle;
 	}
 }

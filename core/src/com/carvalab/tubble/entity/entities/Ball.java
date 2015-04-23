@@ -51,6 +51,7 @@ public class Ball extends Entity {
 		b.ballFixture.density = 1.0f;
 		b.ballFixture.friction = 0.1f;
 		b.ballFixture.restitution = 0.8f;
+		Physics.configureFixtureAsPhysicsObject(b.ballFixture);
 		// Create the body
 		b.pc.createDynamic(b, w, b.ac.getWidth(), b.ac.getHeight(), scale, pos, b.ballShape, b.ballFixture);
 		return b;

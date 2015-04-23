@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import com.carvalab.tubble.Assets;
-import com.carvalab.tubble.Physics;
 import com.carvalab.tubble.entity.entities.Ball;
 import com.carvalab.tubble.entity.entities.Wall;
 import com.carvalab.tubble.entity.systems.PhysicsAnimationRenderSystem;
@@ -62,7 +61,7 @@ public class TubbleAshleyTest extends ApplicationAdapter {
 
 		ashley.update(Gdx.graphics.getDeltaTime());
 
-		Physics.debug(world, camera);
+		// Physics.debug(world, camera);
 	}
 
 	public void spawnBall(Vector2 Pos) {

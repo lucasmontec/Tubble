@@ -26,6 +26,7 @@ public class Wall extends Entity {
 
 		b.wallFixture.friction = 0.5F;
 		b.wallFixture.restitution = 0.0F;
+		Physics.configureFixtureAsWorld(b.wallFixture);
 
 		b.pc.createStaticLine(b, w, end.x - start.x, end.y - start.y, b.wallShape, b.wallFixture);
 		return b;

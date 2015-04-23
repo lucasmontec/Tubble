@@ -4,33 +4,32 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.carvalab.tubble.entity.components.AnimationComponent;
 import com.carvalab.tubble.entity.components.ComponentMappers;
-import com.carvalab.tubble.entity.components.PhysicsComponent;
+import com.carvalab.tubble.entity.components.PositionComponent;
 
 /**
- * This component renders a {@link Animation} using an {@link AnimationComponent} and a {@link PhysicsComponent}.
- * The animation is rendered at the physics body position. The animation component tint is applied to the rendering.
+ * Component for rendering animations that use a position component.
+ * No physics.
  * 
  * @author Lucas M Carvalhaes
  *
  */
-public class PhysicsAnimationRenderSystem extends IteratingSystem {
+public class AnimationRenderSystem extends IteratingSystem {
 	private final SpriteBatch	batch;
 
 	@SuppressWarnings("unchecked")
-	public PhysicsAnimationRenderSystem(SpriteBatch bt) {
-		super(Family.all(PhysicsComponent.class, AnimationComponent.class).get());
+	public AnimationRenderSystem(SpriteBatch bt) {
+		super(Family.all(AnimationComponent.class, PositionComponent.class).get());
 
 		batch = bt;
 	}
 
 	@Override
 	protected void processEntity(Entity entity, float deltaTime) {
-		PhysicsComponent pc = ComponentMappers.physics.get(entity);
 		AnimationComponent ac = ComponentMappers.animation.get(entity);
+		PositionComponent pc = ComponentMappers.position.get(entity);
 
 		// Update the animation timer
 		ac.update(deltaTime);
@@ -40,10 +39,15 @@ public class PhysicsAnimationRenderSystem extends IteratingSystem {
 		batch.setColor(ac.getTint());
 		batch.draw(
 				ac.getKeyFrame(true),
-				pc.getPosition().x,
-				pc.getPosition().y,
+				pc.X(),
+				pc.Y(),
+				0f,
+				0f,
 				ac.getWidth(),
-				ac.getHeight());
+				ac.getHeight(),
+				1f,
+				1f,
+				ac.getAngle());
 		batch.setColor(Color.WHITE);
 		batch.end();
 	}

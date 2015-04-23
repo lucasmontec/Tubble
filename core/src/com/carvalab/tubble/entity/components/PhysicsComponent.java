@@ -12,6 +12,14 @@ import com.badlogic.gdx.physics.box2d.Shape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.carvalab.tubble.Physics;
 
+/**
+ * Adds a physics body using BOX2D to the owner entity.
+ * To use this, add this to the entity as a component and then
+ * call one of the create methods to make the body for that entity.
+ * 
+ * @author Lucas M Carvalhaes
+ *
+ */
 public class PhysicsComponent extends Component {
 	private Fixture	fixture;
 	private Entity	owner;
@@ -20,55 +28,92 @@ public class PhysicsComponent extends Component {
 	private float	height;
 	private Body	body;
 
-	public Fixture getFixture() {
-		return fixture;
-	}
-
-	public void setFixture(Fixture fixture) {
-		this.fixture = fixture;
-	}
-
+	/**
+	 * Creates the body as a dynamic Shape physics object.
+	 * 
+	 * @param owner
+	 *            The entity that has this component (will attatch to it using physics userdata)
+	 * @param world
+	 *            The physics world to create the physics body
+	 * @param width
+	 *            The desired physics width
+	 * @param height
+	 *            The desired physics height
+	 * @param position
+	 *            The position to instantiate the body in the world
+	 * @param shape
+	 *            The Shape to create
+	 * @param fixtureDef
+	 *            The fixture that define the shape physics properties
+	 */
 	public void createDynamic(Entity owner, World world, float width, float height, float scale,
 			Vector2 position, Shape shape, FixtureDef fixtureDef) {
+		// Define the body
 		BodyDef bodyDef = new BodyDef();
 		bodyDef.type = BodyDef.BodyType.DynamicBody;
 		bodyDef.position.set(
 				Physics.toBox(position.x + width * scale / 2.0F),
 				Physics.toBox(position.y + height * scale / 2.0F));
 
+		// Make the body in the world
 		Body body = world.createBody(bodyDef);
 
+		// Attatch the shape to the fixture
 		fixtureDef.shape = shape;
 
+		// Create the fixture
 		fixture = body.createFixture(fixtureDef);
 
+		// Store the entity onwer
 		setOwner(owner);
-
 		body.setUserData(owner);
 
+		// Store other data
 		this.scale = scale;
 		this.width = width;
 		this.height = height;
 		this.body = body;
 	}
 
+	/**
+	 * Creates the body as a ChainShape physics line.
+	 * 
+	 * @param owner
+	 *            The entity that has this component (will attatch to it using physics userdata)
+	 * @param world
+	 *            The physics world to create the physics body
+	 * @param width
+	 *            The desired physics width
+	 * @param height
+	 *            The desired physics height
+	 * @param shape
+	 *            The ChainShape to create
+	 * @param fixtureDef
+	 *            The fixture that define the shape physics properties
+	 */
 	public void createStaticLine(Entity owner, World world, float width, float height, ChainShape shape,
 			FixtureDef fixtureDef) {
+		// Define the body
 		BodyDef bodyDef = new BodyDef();
 		bodyDef.type = BodyDef.BodyType.StaticBody;
-
 		bodyDef.position.set(new Vector2(0.0F, 0.0F));
 
+		// Make the body in the world
 		Body body = world.createBody(bodyDef);
 
+		// Attatch the shape to the fixture
 		fixtureDef.shape = shape;
 
+		// Create the fixture
 		fixture = body.createFixture(fixtureDef);
 
+		// Store the entity onwer
 		setOwner(owner);
 		if (owner != null) {
 			body.setUserData(owner);
 		}
+
+		// Store other data
 		this.width = width;
 		this.height = height;
 		this.body = body;
@@ -97,4 +142,20 @@ public class PhysicsComponent extends Component {
 	public float getHeight() {
 		return height;
 	}
+
+	public Fixture getFixture() {
+		return fixture;
+	}
+
+	public void setFixture(Fixture fixture) {
+		this.fixture = fixture;
+	}
+
+	/**
+	 * @return the body
+	 */
+	public Body getBody() {
+		return body;
+	}
+
 }
