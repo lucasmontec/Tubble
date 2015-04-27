@@ -12,5 +12,6 @@ public class DesktopLauncher {
 
 		// new LwjglApplication(new TubbleAshleyTest(), config);
 		new LwjglApplication(new TubbleGameplayTest(), config);
+		// new LwjglApplication(new BatchDrawingTest(), config);
 	}
 }

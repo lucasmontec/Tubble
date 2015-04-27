@@ -20,7 +20,6 @@ import com.carvalab.tubble.entity.components.PhysicsComponent;
 public class PhysicsAnimationRenderSystem extends IteratingSystem {
 	private final SpriteBatch	batch;
 
-	@SuppressWarnings("unchecked")
 	public PhysicsAnimationRenderSystem(SpriteBatch bt) {
 		super(Family.all(PhysicsComponent.class, AnimationComponent.class).get());
 

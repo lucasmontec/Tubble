@@ -1,29 +1,46 @@
 package com.carvalab.tubble.test;
 
+import java.util.Stack;
+
 import com.badlogic.ashley.core.Engine;
+import com.badlogic.ashley.core.Entity;
+import com.badlogic.ashley.core.EntityListener;
+import com.badlogic.ashley.core.Family;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.graphics.FPSLogger;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.Contact;
+import com.badlogic.gdx.physics.box2d.ContactImpulse;
+import com.badlogic.gdx.physics.box2d.ContactListener;
+import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.physics.box2d.World;
 import com.carvalab.tubble.Assets;
 import com.carvalab.tubble.entity.components.ComponentMappers;
+import com.carvalab.tubble.entity.components.LivingStateComponent;
+import com.carvalab.tubble.entity.components.LivingStateComponent.STATE;
+import com.carvalab.tubble.entity.components.PhysicsComponent;
 import com.carvalab.tubble.entity.entities.Ball;
 import com.carvalab.tubble.entity.entities.Launcher;
 import com.carvalab.tubble.entity.entities.Wall;
+import com.carvalab.tubble.entity.systems.LivingStateSystem;
 import com.carvalab.tubble.entity.systems.PhysicsAnimationRenderSystem;
 import com.carvalab.tubble.entity.systems.TextureRenderSystem;
 
 public class TubbleGameplayTest extends ApplicationAdapter {
 	SpriteBatch			batch;
 	World				world;
+	final Stack<Body>	removeBodyStack		= new Stack<>();
 	Engine				ashley;
 	OrthographicCamera	camera;
-	float scrWidth = 0f;
-	float scrHeight = 0f;
+	float				scrWidth			= 0f;
+	float				scrHeight			= 0f;
+	FPSLogger			fps					= new FPSLogger();
 
 	Vector2				ballSpawnPoint;
 	Launcher			ballLauncher;
@@ -47,6 +64,7 @@ public class TubbleGameplayTest extends ApplicationAdapter {
 		// Add the animation rendering system
 		ashley.addSystem(new PhysicsAnimationRenderSystem(batch));
 		ashley.addSystem(new TextureRenderSystem(batch));
+		ashley.addSystem(new LivingStateSystem());
 
 		// Add map walls
 		// Floor
@@ -73,14 +91,59 @@ public class TubbleGameplayTest extends ApplicationAdapter {
 
 			@Override
 			public boolean touchUp(int x, int y, int pointer, int button) {
-				Ball b = spawnBall(ballSpawnPoint);
-				ComponentMappers.physics.get(b).getBody()
-				.applyForceToCenter(
-						ballSpawnPoint.cpy().sub(new Vector2(x, y)).scl(-1).nor().scl(ballShootForce),
-						true);
-				ballShootForce = ballStartForce;
-				return true;
+				if (button == Buttons.LEFT) {
+					Ball b = spawnBall(ballSpawnPoint);
+					ComponentMappers.physics
+					.get(b)
+					.getBody()
+					.applyForceToCenter(
+							new Vector2(x, scrHeight - y).cpy().sub(ballSpawnPoint).nor()
+							.scl(ballShootForce),
+							true);
+					ballShootForce = ballStartForce;
+					return true;
+				}
+				return false;
 			}
+		});
+
+		// Destroy balls
+		world.setContactListener(new ContactListener() {
+			@Override
+			public void preSolve(Contact contact, Manifold oldManifold) {
+
+				if (contact.getFixtureA().getBody().getUserData() instanceof Ball
+						&& contact.getFixtureB().getBody().getUserData() instanceof Ball) {
+					LivingStateComponent lsc = ComponentMappers.living.get((Ball) contact.getFixtureA()
+							.getBody().getUserData());
+					lsc.setState(STATE.DEAD);
+					contact.setEnabled(false);
+				}
+
+			}
+
+			@Override
+			public void postSolve(Contact contact, ContactImpulse impulse) {}
+
+			@Override
+			public void endContact(Contact contact) {}
+
+			@Override
+			public void beginContact(Contact contact) {}
+		});
+
+		// Remove physics
+		ashley.addEntityListener(Family.all(PhysicsComponent.class).get(), new EntityListener() {
+			@Override
+			public void entityRemoved(Entity entity) {
+				if (entity instanceof Ball)
+					((Ball) entity).dispose();
+				ComponentMappers.physics.get(entity).getBody().setActive(false);
+				removeBodyStack.add(ComponentMappers.physics.get(entity).getBody());
+			}
+
+			@Override
+			public void entityAdded(Entity entity) {}
 		});
 	}
 
@@ -109,6 +172,11 @@ public class TubbleGameplayTest extends ApplicationAdapter {
 		batch.end();
 
 		// Physics.debug(world, camera);
+		if (!world.isLocked())
+			while (!removeBodyStack.isEmpty())
+				world.destroyBody(removeBodyStack.pop());
+
+		// fps.log();
 	}
 
 	public Ball spawnBall(Vector2 Pos) {

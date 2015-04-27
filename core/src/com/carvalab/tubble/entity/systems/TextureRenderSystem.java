@@ -19,7 +19,6 @@ import com.carvalab.tubble.entity.components.TextureComponent;
 public class TextureRenderSystem extends IteratingSystem {
 	private final SpriteBatch	batch;
 
-	@SuppressWarnings("unchecked")
 	public TextureRenderSystem(SpriteBatch bt) {
 		super(Family.all(PositionComponent.class).one(TextureComponent.class).get());
 

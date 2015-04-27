@@ -19,7 +19,6 @@ import com.carvalab.tubble.entity.components.PositionComponent;
 public class AnimationRenderSystem extends IteratingSystem {
 	private final SpriteBatch	batch;
 
-	@SuppressWarnings("unchecked")
 	public AnimationRenderSystem(SpriteBatch bt) {
 		super(Family.all(AnimationComponent.class, PositionComponent.class).get());
 

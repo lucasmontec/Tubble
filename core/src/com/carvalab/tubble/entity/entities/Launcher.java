@@ -43,20 +43,6 @@ public class Launcher {
 				1f,
 				angle);
 		// Draw the top charging texture
-		/*
-		 * batch.draw(
-		 * overTexture,
-		 * position.x - underTexture.getRegionWidth() * scale / 2,
-		 * (position.y - underTexture.getRegionHeight() * scale / 2) - calculateOTHPerCharge() * scale,
-		 * underTexture.getRegionWidth() * scale / 2,
-		 * (underTexture.getRegionHeight() * scale) / 2f + calculateOTHPerCharge() * scale,
-		 * underTexture.getRegionWidth() * scale,
-		 * underTexture.getRegionHeight() * scale,
-		 * 1f,
-		 * 1f,
-		 * angle);
-		 */
-
 		batch.draw(
 				overTexture,
 				position.x - underTexture.getRegionWidth() * scale / 2,
@@ -92,16 +78,9 @@ public class Launcher {
 
 	public void setChargePercent(float chargePercent) {
 		this.chargePercent = chargePercent;
-		// overTexture.setRegionY((int) calculateOTHPerCharge());
 
 		overTexture.setRegionHeight(overTexture.getTexture().getHeight());
 		overTexture.setRegionHeight(overTexture.getRegionHeight() - (int) (calculateOTHPerCharge()));
-		/*
-		 * overTexture.setRegionY(0);
-		 * overTexture.setRegionHeight(overTexture.getTexture().getHeight());
-		 * overTexture.setRegionY((int) calculateOTHPerCharge());
-		 * overTexture.setRegionHeight((int) (overTexture.getRegionHeight() + calculateOTHPerCharge()));
-		 */
 	}
 
 }

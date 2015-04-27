@@ -27,9 +27,10 @@ public class PhysicsComponent extends Component {
 	private float	width;
 	private float	height;
 	private Body	body;
+	private World	world;
 
 	/**
-	 * Creates the body as a dynamic Shape physics object.
+	 * Creates the body as a Shape physics object.
 	 * 
 	 * @param owner
 	 *            The entity that has this component (will attatch to it using physics userdata)
@@ -45,12 +46,17 @@ public class PhysicsComponent extends Component {
 	 *            The Shape to create
 	 * @param fixtureDef
 	 *            The fixture that define the shape physics properties
+	 * @param dynamic
+	 *            Set to true to create a dynamic object. False for static.
 	 */
-	public void createDynamic(Entity owner, World world, float width, float height, float scale,
-			Vector2 position, Shape shape, FixtureDef fixtureDef) {
+	public void create(Entity owner, World world, float width, float height, float scale, Vector2 position,
+			Shape shape, FixtureDef fixtureDef, boolean dynamic) {
 		// Define the body
 		BodyDef bodyDef = new BodyDef();
-		bodyDef.type = BodyDef.BodyType.DynamicBody;
+		if (dynamic)
+			bodyDef.type = BodyDef.BodyType.DynamicBody;
+		else
+			bodyDef.type = BodyDef.BodyType.StaticBody;
 		bodyDef.position.set(
 				Physics.toBox(position.x + width * scale / 2.0F),
 				Physics.toBox(position.y + height * scale / 2.0F));
@@ -73,6 +79,7 @@ public class PhysicsComponent extends Component {
 		this.width = width;
 		this.height = height;
 		this.body = body;
+		this.world = world;
 	}
 
 	/**
@@ -117,6 +124,7 @@ public class PhysicsComponent extends Component {
 		this.width = width;
 		this.height = height;
 		this.body = body;
+		this.world = world;
 	}
 
 	public Vector2 getPosition() {
@@ -156,6 +164,10 @@ public class PhysicsComponent extends Component {
 	 */
 	public Body getBody() {
 		return body;
+	}
+
+	public World getWorld() {
+		return world;
 	}
 
 }
