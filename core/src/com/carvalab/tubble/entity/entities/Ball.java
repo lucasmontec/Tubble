@@ -1,12 +1,12 @@
 package com.carvalab.tubble.entity.entities;
 
 import com.badlogic.ashley.core.Entity;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.World;
 import com.carvalab.tubble.Physics;
+import com.carvalab.tubble.Tubble;
 import com.carvalab.tubble.entity.components.AnimationComponent;
 import com.carvalab.tubble.entity.components.LivingStateComponent;
 import com.carvalab.tubble.entity.components.PhysicsComponent;
@@ -19,26 +19,8 @@ public class Ball extends Entity {
 	private final FixtureDef			ballFixture	= new FixtureDef();
 
 	private Ball() {
-		int rcolor = (int) (Math.random() * 5.0f);
-		Color color;
-		switch (rcolor) {
-			case 1:
-				color = Color.RED;
-				break;
-			case 2:
-				color = Color.GREEN;
-				break;
-			case 3:
-				color = Color.YELLOW;
-				break;
-			case 4:
-				color = Color.BLUE;
-				break;
-			default:
-				color = Color.WHITE;
-		}
 		pc = new PhysicsComponent();
-		ac = new AnimationComponent("ball", color, 0.2f);
+		ac = new AnimationComponent(Tubble.ballLoris, Tubble.ballScale);
 		lc = new LivingStateComponent();
 		add(pc);
 		add(ac);

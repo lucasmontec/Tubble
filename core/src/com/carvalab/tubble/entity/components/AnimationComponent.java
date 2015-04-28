@@ -24,6 +24,10 @@ public class AnimationComponent extends Component {
 		color = tint;
 	}
 
+	public AnimationComponent(String animAsset, float FrameDuration) {
+		this(animAsset, null, FrameDuration);
+	}
+
 	public void update(float dt) {
 		animationStateTime += dt;
 	}

@@ -36,7 +36,8 @@ public class PhysicsAnimationRenderSystem extends IteratingSystem {
 
 		// Draw the things
 		batch.begin();
-		batch.setColor(ac.getTint());
+		if (ac.getTint() != null)
+			batch.setColor(ac.getTint());
 		batch.draw(
 				ac.getKeyFrame(true),
 				pc.getPosition().x,

@@ -18,9 +18,11 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.ContactListener;
+import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.physics.box2d.World;
 import com.carvalab.tubble.Assets;
+import com.carvalab.tubble.Tubble;
 import com.carvalab.tubble.entity.components.ComponentMappers;
 import com.carvalab.tubble.entity.components.LivingStateComponent;
 import com.carvalab.tubble.entity.components.LivingStateComponent.STATE;
@@ -30,7 +32,6 @@ import com.carvalab.tubble.entity.entities.Launcher;
 import com.carvalab.tubble.entity.entities.Wall;
 import com.carvalab.tubble.entity.systems.LivingStateSystem;
 import com.carvalab.tubble.entity.systems.PhysicsAnimationRenderSystem;
-import com.carvalab.tubble.entity.systems.TextureRenderSystem;
 
 public class TubbleGameplayTest extends ApplicationAdapter {
 	SpriteBatch			batch;
@@ -47,6 +48,7 @@ public class TubbleGameplayTest extends ApplicationAdapter {
 	float				ballShootForce		= 10f;
 	float				ballStartForce		= 10f;
 	float				ballMaxShootForce	= 100f;
+	Wall				floor;
 
 	@Override
 	public void create() {
@@ -63,16 +65,19 @@ public class TubbleGameplayTest extends ApplicationAdapter {
 
 		// Add the animation rendering system
 		ashley.addSystem(new PhysicsAnimationRenderSystem(batch));
-		ashley.addSystem(new TextureRenderSystem(batch));
+		// ashley.addSystem(new TextureRenderSystem(batch));
 		ashley.addSystem(new LivingStateSystem());
 
 		// Add map walls
+		float bottomY = -50f;
 		// Floor
-		ashley.addEntity(Wall.instantiate(world, new Vector2(0f, 0f), new Vector2(scrWidth, 0f)));
+		ashley.addEntity(floor = Wall.instantiate(world, new Vector2(0f, bottomY), new Vector2(scrWidth,
+				bottomY)));
 		// Left wall
-		ashley.addEntity(Wall.instantiate(world, new Vector2(0f, 0f), new Vector2(0f, scrHeight)));
+		ashley.addEntity(Wall.instantiate(world, new Vector2(0f, bottomY), new Vector2(0f, scrHeight)));
 		// Right wall
-		ashley.addEntity(Wall.instantiate(world, new Vector2(scrWidth - 1f, 0f), new Vector2(scrWidth - 1f,
+		ashley.addEntity(Wall.instantiate(world, new Vector2(scrWidth - 1f, bottomY), new Vector2(
+				scrWidth - 1f,
 				scrHeight)));
 		// Ceiling
 		ashley.addEntity(Wall.instantiate(world, new Vector2(0f, scrHeight - 1f), new Vector2(scrWidth,
@@ -111,15 +116,33 @@ public class TubbleGameplayTest extends ApplicationAdapter {
 		world.setContactListener(new ContactListener() {
 			@Override
 			public void preSolve(Contact contact, Manifold oldManifold) {
-
+				// Balls delete balls
 				if (contact.getFixtureA().getBody().getUserData() instanceof Ball
 						&& contact.getFixtureB().getBody().getUserData() instanceof Ball) {
-					LivingStateComponent lsc = ComponentMappers.living.get((Ball) contact.getFixtureA()
-							.getBody().getUserData());
+					float velA = contact.getFixtureA().getBody().getLinearVelocity().len();
+					float velB = contact.getFixtureB().getBody().getLinearVelocity().len();
+					// Choose the faster fixture
+					Fixture fix = (velA > velB ? contact.getFixtureB() : contact.getFixtureA());
+					// Get its living component
+					LivingStateComponent lsc = ComponentMappers.living
+							.get((Ball) fix.getBody().getUserData());
+					// Kill it
 					lsc.setState(STATE.DEAD);
+					// Maybe disable if the speed is great
+					if (velA > 8 || velB > 8)
+						contact.setEnabled(false);
+				}
+				// Balls die at floor
+				if (contact.getFixtureA().getBody().getUserData().equals(floor)
+						&& contact.getFixtureB().getBody().getUserData() instanceof Ball) {
+					// Get its living component
+					LivingStateComponent lsc = ComponentMappers.living.get((Ball) contact.getFixtureB()
+							.getBody().getUserData());
+					// Kill it
+					lsc.setState(STATE.DEAD);
+					// No contact (no floor)
 					contact.setEnabled(false);
 				}
-
 			}
 
 			@Override
@@ -145,6 +168,8 @@ public class TubbleGameplayTest extends ApplicationAdapter {
 			@Override
 			public void entityAdded(Entity entity) {}
 		});
+
+		Tubble.spawnField(ashley, world, scrWidth, scrHeight, 14, 5, 20, 20);
 	}
 
 	@Override
@@ -180,7 +205,7 @@ public class TubbleGameplayTest extends ApplicationAdapter {
 	}
 
 	public Ball spawnBall(Vector2 Pos) {
-		Ball b = Ball.instantiate(world, Pos, 0.1f);
+		Ball b = Ball.instantiate(world, Pos, Tubble.ballScale);
 		ashley.addEntity(b);
 		return b;
 	}
